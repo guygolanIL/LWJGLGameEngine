@@ -96,7 +96,7 @@ public class OBJLoader {
 		
 		
 		
-		RawModel model = loader.loadToVAO(verticesArray, texturesArray, indicesArray);
+		RawModel model = loader.loadToVAO(verticesArray, texturesArray, normalsArray, indicesArray);
 		return model;
 	}
 	
