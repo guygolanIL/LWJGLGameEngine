@@ -23,17 +23,22 @@ public class MainGameLoop {
         DisplayManager.createDisplay();
         Loader loader = new Loader();
          
-        RawModel model = OBJLoader.loadObjModel("stall", loader);
-         
-        TexturedModel staticModel = new TexturedModel(model,new ModelTexture(loader.loadTexture("stallTexture")));
-        ModelTexture texture = staticModel.getTexture();
+        RawModel stallModel = OBJLoader.loadObjModel("stall", loader);
+        RawModel fernModel = OBJLoader.loadObjModel("fern", loader); 
+        
+        TexturedModel stallTexturedModel = new TexturedModel(stallModel,new ModelTexture(loader.loadTexture("stallTexture")));
+        TexturedModel fernTexturedModel = new TexturedModel(fernModel,new ModelTexture(loader.loadTexture("fern")));
+        fernTexturedModel.getTexture().setHasTransparancy(true);
+        fernTexturedModel.getTexture().setUseFakeLighting(true);
+        ModelTexture texture = stallTexturedModel.getTexture();
         texture.setShineDamper(10);
         texture.setReflectivity(1);
         
-        Entity entity1 = new Entity(staticModel, new Vector3f(5,0,-25),0,90,0,1);
-        Entity entity2 = new Entity(staticModel, new Vector3f(5,0,-35),0,90,0,1);
-        Entity entity3 = new Entity(staticModel, new Vector3f(-5,0,-25) ,0,-90,0,1);
-        Entity entity4 = new Entity(staticModel, new Vector3f(-5,0,-35) ,0,-90,0,1);
+        Entity stallEntity1 = new Entity(stallTexturedModel, new Vector3f(5,0,-25),0,90,0,1);
+        Entity stallEntity2 = new Entity(stallTexturedModel, new Vector3f(5,0,-35),0,90,0,1);
+        Entity stallEntity3 = new Entity(stallTexturedModel, new Vector3f(-5,0,-25) ,0,-90,0,1);
+        Entity stallEntity4 = new Entity(stallTexturedModel, new Vector3f(-5,0,-35) ,0,-90,0,1);
+        Entity fernEntity1 = new Entity(fernTexturedModel, new Vector3f(0, 0, 0), 0, 0, 0, 1);
         Terrain terrain1 = new Terrain(-1 , -1, loader, new ModelTexture(loader.loadTexture("grass")));
         Terrain terrain2 = new Terrain(0 , -1, loader, new ModelTexture(loader.loadTexture("grass")));
         Terrain terrain3 = new Terrain(1 ,-1, loader, new ModelTexture(loader.loadTexture("grass")));
@@ -47,10 +52,11 @@ public class MainGameLoop {
         	
         	
         	
-        	renderer.processEntity(entity1);
-        	renderer.processEntity(entity2);
-        	renderer.processEntity(entity3);
-        	renderer.processEntity(entity4);
+        	renderer.processEntity(stallEntity1);
+        	renderer.processEntity(stallEntity2);
+        	renderer.processEntity(stallEntity3);
+        	renderer.processEntity(stallEntity4);
+        	renderer.processEntity(fernEntity1);
         	renderer.processTerrain(terrain1);
         	renderer.processTerrain(terrain2);
         	renderer.processTerrain(terrain3);
