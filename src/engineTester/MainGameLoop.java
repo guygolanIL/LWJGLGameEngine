@@ -1,12 +1,16 @@
 package engineTester;
  
-import org.lwjgl.input.Mouse;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 
 import entities.Camera;
 import entities.Entity;
 import entities.Light;
+import entities.Player;
 import models.RawModel;
 import models.TexturedModel;
 import renderEngine.DisplayManager;
@@ -23,44 +27,62 @@ public class MainGameLoop {
         DisplayManager.createDisplay();
         Loader loader = new Loader();
          
-        RawModel stallModel = OBJLoader.loadObjModel("stall", loader);
+        
+        
+        RawModel treeModel = OBJLoader.loadObjModel("tree", loader);
         RawModel fernModel = OBJLoader.loadObjModel("fern", loader); 
         
-        TexturedModel stallTexturedModel = new TexturedModel(stallModel,new ModelTexture(loader.loadTexture("stallTexture")));
-        TexturedModel fernTexturedModel = new TexturedModel(fernModel,new ModelTexture(loader.loadTexture("fern")));
+        
+        TexturedModel treeTexturedModel = new TexturedModel(treeModel,new ModelTexture(loader.loadTexture("tree")));
+        ModelTexture fernAtlas = new ModelTexture(loader.loadTexture("fernAtlas"));
+        fernAtlas.setNumberOfRows(2);
+        TexturedModel fernTexturedModel = new TexturedModel(fernModel,fernAtlas);
         fernTexturedModel.getTexture().setHasTransparancy(true);
         fernTexturedModel.getTexture().setUseFakeLighting(true);
-        ModelTexture texture = stallTexturedModel.getTexture();
-        texture.setShineDamper(10);
-        texture.setReflectivity(1);
         
-        Entity stallEntity1 = new Entity(stallTexturedModel, new Vector3f(5,0,-25),0,90,0,1);
-        Entity stallEntity2 = new Entity(stallTexturedModel, new Vector3f(5,0,-35),0,90,0,1);
-        Entity stallEntity3 = new Entity(stallTexturedModel, new Vector3f(-5,0,-25) ,0,-90,0,1);
-        Entity stallEntity4 = new Entity(stallTexturedModel, new Vector3f(-5,0,-35) ,0,-90,0,1);
-        Entity fernEntity1 = new Entity(fernTexturedModel, new Vector3f(0, 0, 0), 0, 0, 0, 1);
-        Terrain terrain1 = new Terrain(-1 , -1, loader, new ModelTexture(loader.loadTexture("grass")));
-        Terrain terrain2 = new Terrain(0 , -1, loader, new ModelTexture(loader.loadTexture("grass")));
-        Terrain terrain3 = new Terrain(1 ,-1, loader, new ModelTexture(loader.loadTexture("grass")));
-        Light light = new Light(new Vector3f(0,0,-20), new Vector3f(1, 1, 1)); 
+        Terrain terrain1 = new Terrain(-1 , -1, loader, new ModelTexture(loader.loadTexture("grass")),"heightmap");
+
+        List<Entity> entities = new ArrayList<>();
+        Random random = new Random(676452);
+        for(int i = 0 ; i < 400 ; i++){
+        	if(i % 2 == 0){
+        		float x = random.nextFloat() * 800 - 400;
+        		float z = random.nextFloat() * -600;
+        		float y = terrain1.getHeightOfTerrain(x, z);
+        		entities.add(new Entity(fernTexturedModel,random.nextInt(4), new Vector3f(x, y, z), 0, random.nextFloat() * 360 , 0, 0.9f));
+        	}
+        	if(i % 5 == 0){
+        		float x = random.nextFloat() * 800 - 400;
+        		float z = random.nextFloat() * -600;
+        		float y = terrain1.getHeightOfTerrain(x, z);
+        		entities.add(new Entity(treeTexturedModel, new Vector3f(x, y, z), 0, 0, 0, random.nextFloat() * 1+4));
+        	}
+        }
         
-        Camera camera = new Camera(new Vector3f(0, 10, 0));
+        
+        TexturedModel personTexturedModel = new TexturedModel(OBJLoader.loadObjModel("person", loader), new ModelTexture(loader.loadTexture("playerTexture")));
+        
+        Player person = new Player(personTexturedModel, new Vector3f(0, 0, 0), 0, -180, 0, 1);
+        
+       
+        Light light = new Light(new Vector3f(20000,40000,20000), new Vector3f(1, 1, 1)); 
+        
+        Camera camera = new Camera(person);
          
         MasterRenderer renderer = new MasterRenderer();
         while(!Display.isCloseRequested()){
         	camera.move();
+        	person.move(terrain1);
         	
+        	renderer.processEntity(person);
         	
+        	for (Entity entity : entities) {
+				renderer.processEntity(entity);
+			}
         	
-        	renderer.processEntity(stallEntity1);
-        	renderer.processEntity(stallEntity2);
-        	renderer.processEntity(stallEntity3);
-        	renderer.processEntity(stallEntity4);
-        	renderer.processEntity(fernEntity1);
         	renderer.processTerrain(terrain1);
-        	renderer.processTerrain(terrain2);
-        	renderer.processTerrain(terrain3);
-        	renderer.render(light.setPosition(camera.getPosition()), camera);
+        	
+        	renderer.render(light, camera);
             DisplayManager.updateDisplay();
         }
  
