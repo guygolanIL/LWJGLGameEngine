@@ -5,12 +5,15 @@ import java.util.List;
 import java.util.Random;
 
 import org.lwjgl.opengl.Display;
+import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
 import entities.Camera;
 import entities.Entity;
 import entities.Light;
 import entities.Player;
+import guis.GuiRenderer;
+import guis.GuiTexture;
 import models.RawModel;
 import models.TexturedModel;
 import renderEngine.DisplayManager;
@@ -65,14 +68,27 @@ public class MainGameLoop {
         Player person = new Player(personTexturedModel, new Vector3f(0, 0, 0), 0, -180, 0, 1);
         
        
-        Light light = new Light(new Vector3f(20000,40000,20000), new Vector3f(1, 1, 1)); 
-        
+        List<Light> lights = new ArrayList<>();
+        lights.add(new Light(new Vector3f(20000,40000,20000), new Vector3f(1, 1, 1)));
+        lights.add(new Light(new Vector3f(-200, 10, -200), new Vector3f(10, 0, 0)));
+        lights.add(new Light(new Vector3f(200, 10, 200), new Vector3f(0, 0, 10)));
         Camera camera = new Camera(person);
          
         MasterRenderer renderer = new MasterRenderer();
+        
+        List<GuiTexture> guis = new ArrayList<>();
+        GuiTexture health = new GuiTexture(loader.loadTexture("health"), new Vector2f(-0.8f, 0.9f), new Vector2f(0.15f, 0.23f));
+        
+        guis.add(health);
+        
+        
+        GuiRenderer guiRenderer = new GuiRenderer(loader);
+        
         while(!Display.isCloseRequested()){
         	camera.move();
         	person.move(terrain1);
+        	
+        	
         	
         	renderer.processEntity(person);
         	
@@ -82,10 +98,13 @@ public class MainGameLoop {
         	
         	renderer.processTerrain(terrain1);
         	
-        	renderer.render(light, camera);
+        	renderer.render(lights, camera);
+        	
+        	guiRenderer.render(guis);
             DisplayManager.updateDisplay();
         }
  
+        guiRenderer.cleanUp();
         renderer.cleanUp();
         loader.cleanUp();
         DisplayManager.closeDisplay();
