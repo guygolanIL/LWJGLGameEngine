@@ -44,7 +44,11 @@ public class MainGameLoop {
         fernTexturedModel.getTexture().setUseFakeLighting(true);
         
         Terrain terrain1 = new Terrain(-1 , -1, loader, new ModelTexture(loader.loadTexture("grass")),"heightmap");
-
+        Terrain terrain2 = new Terrain(0, -1, loader, new ModelTexture(loader.loadTexture("grass")), "heightmap");
+        List<Terrain> terrains = new ArrayList<>();
+        terrains.add(terrain1);
+        terrains.add(terrain2);
+        
         List<Entity> entities = new ArrayList<>();
         Random random = new Random(676452);
         for(int i = 0 ; i < 400 ; i++){
@@ -70,11 +74,11 @@ public class MainGameLoop {
        
         List<Light> lights = new ArrayList<>();
         lights.add(new Light(new Vector3f(20000,40000,20000), new Vector3f(1, 1, 1)));
-        lights.add(new Light(new Vector3f(-200, 10, -200), new Vector3f(10, 0, 0)));
-        lights.add(new Light(new Vector3f(200, 10, 200), new Vector3f(0, 0, 10)));
+//        lights.add(new Light(new Vector3f(-200, 10, -200), new Vector3f(10, 0, 0)));
+//        lights.add(new Light(new Vector3f(200, 10, 200), new Vector3f(0, 0, 10)));
         Camera camera = new Camera(person);
          
-        MasterRenderer renderer = new MasterRenderer();
+        MasterRenderer renderer = new MasterRenderer(loader);
         
         List<GuiTexture> guis = new ArrayList<>();
         GuiTexture health = new GuiTexture(loader.loadTexture("health"), new Vector2f(-0.8f, 0.9f), new Vector2f(0.15f, 0.23f));
@@ -96,7 +100,7 @@ public class MainGameLoop {
 				renderer.processEntity(entity);
 			}
         	
-        	renderer.processTerrain(terrain1);
+        	renderer.processTerrain(terrains);
         	
         	renderer.render(lights, camera);
         	

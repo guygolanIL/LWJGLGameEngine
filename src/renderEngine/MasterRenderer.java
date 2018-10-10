@@ -16,6 +16,8 @@ import entities.Light;
 import models.TexturedModel;
 import shaders.StaticShader;
 import shaders.TerrainShader;
+import skyBox.SkyBoxRenderer;
+import skyBox.SkyboxShader;
 import terrain.Terrain;
 
 public class MasterRenderer {
@@ -25,9 +27,9 @@ public class MasterRenderer {
     private static final float NEAR_PLANE = 0.1f;
     private static final float FAR_PLANE = 1000;
 	
-    private static final float RED = 0.5f;
-    private static final float GREEN = 0.5f;
-    private static final float BLUE = 0.5f;
+    private static final float RED = 0.5444f;
+    private static final float GREEN = 0.62f;
+    private static final float BLUE = 0.69f;
     
     private Matrix4f projectionMatrix;
     
@@ -35,18 +37,21 @@ public class MasterRenderer {
 	private StaticShader shader = new StaticShader();
 	private TerrainShader terrainShader = new TerrainShader();
 	
-	private EntityRenderer renderer;
+	
+	private EntityRenderer entityRenderer;
 	private TerrainRenderer terrainRenderer;
+	private SkyBoxRenderer skyboxRenderer;
 	
 	private Map<TexturedModel , List<Entity>> entities = new HashMap<>();
 	private List<Terrain> terrains = new ArrayList<>();
 	
 	
-	public MasterRenderer(){
+	public MasterRenderer(Loader loader){
 
 		createProjectionMatrix();
 		terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
-		renderer = new EntityRenderer(shader , projectionMatrix);
+		entityRenderer = new EntityRenderer(shader , projectionMatrix);
+		skyboxRenderer = new SkyBoxRenderer(loader, projectionMatrix);
 	}
 	
 	public void render(List<Light> lights , Camera camera){
@@ -57,15 +62,20 @@ public class MasterRenderer {
 		shader.loadSkyColour(RED, GREEN, BLUE);
 		shader.loadLights(lights);
 		shader.loadViewMatrix(camera);
-		renderer.render(entities);
+		entityRenderer.render(entities);
 		shader.stop();
 		
+		//terrain rendering
 		terrainShader.start();
 		terrainShader.loadSkyColour(RED, GREEN, BLUE);
 		terrainShader.loadLights(lights);
 		terrainShader.loadViewMatrix(camera);
 		terrainRenderer.render(terrains);
 		terrainShader.stop();
+		
+		//skybox Rendering
+		skyboxRenderer.render(camera);
+		
 		
 		terrains.clear();
 		entities.clear();
@@ -83,9 +93,13 @@ public class MasterRenderer {
 		}
 	}
 	
-	public void processTerrain(Terrain terrain) {
+	public void processTerrain(List<Terrain> terrain) {
 		
-		terrains.add(terrain);
+		for (Terrain terrain2 : terrain) {
+			terrains.add(terrain2);
+		}
+		
+//		terrains.add(terrain);
 	}
 
     public void prepare() {
