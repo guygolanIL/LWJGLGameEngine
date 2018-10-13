@@ -23,6 +23,7 @@ import renderEngine.OBJLoader;
 import terrain.Terrain;
 import textures.ModelTexture;
 import toolbox.MousePicker;
+import water.WaterFrameBuffers;
 import water.WaterRenderer;
 import water.WaterShader;
 import water.WaterTile;
@@ -53,6 +54,7 @@ public class MainGameLoop {
         terrains.add(terrain1);
         terrains.add(terrain2);
         
+        
         List<Entity> entities = new ArrayList<>();
         Random random = new Random(676452);
         for(int i = 0 ; i < 400 ; i++){
@@ -71,15 +73,14 @@ public class MainGameLoop {
         }
         
         
+
         TexturedModel personTexturedModel = new TexturedModel(OBJLoader.loadObjModel("person", loader), new ModelTexture(loader.loadTexture("playerTexture")));
-        
         Player person = new Player(personTexturedModel, new Vector3f(0, 0, 0), 0, -180, 0, 1);
+        entities.add(person);
         
        
         List<Light> lights = new ArrayList<>();
         lights.add(new Light(new Vector3f(20000,40000,20000), new Vector3f(1, 1, 1)));
-//        lights.add(new Light(new Vector3f(-200, 10, -200), new Vector3f(10, 0, 0)));
-//        lights.add(new Light(new Vector3f(200, 10, 200), new Vector3f(0, 0, 10)));
         Camera camera = new Camera(person);
          
         MasterRenderer renderer = new MasterRenderer(loader);
@@ -94,26 +95,38 @@ public class MainGameLoop {
         
         MousePicker picker = new MousePicker(camera, renderer.getProjectionMatrix(),terrain1);
         
+        // **********WATER RENDERER set up*************** 
         WaterShader waterShader = new WaterShader();
         WaterRenderer waterRenderer = new WaterRenderer(loader, waterShader, renderer.getProjectionMatrix());
         List<WaterTile> waters = new ArrayList<>();
         waters.add(new WaterTile(-75, -75, 0));
         
+        
+        WaterFrameBuffers fbos = new WaterFrameBuffers();
+        GuiTexture fbosTex = new GuiTexture(fbos.getReflectionTexture(), new Vector2f(-0.5f, 0.5f), new Vector2f(0.5f, 0.5f));
+        guis.add(fbosTex);
+        
+        // *****************GAME LOOP **********************
         while(!Display.isCloseRequested()){
         	camera.move();
         	person.move(terrain1);
-        	
         	picker.update();
 
+        	fbos.bindReflectionFrameBuffer();
         	renderer.renderScene(entities , terrains , lights , camera);
+        	fbos.unbindCurrentFrameBuffer();
         	
-        	renderer.processEntity(person);
+        	renderer.renderScene(entities , terrains , lights , camera);
         	waterRenderer.render(waters, camera);
-        	
         	guiRenderer.render(guis);
+        	
+        	
             DisplayManager.updateDisplay();
         }
  
+        
+        // *****************CLEAN UP ***********************
+        fbos.cleanUp();
         waterShader.cleanUp();
         guiRenderer.cleanUp();
         renderer.cleanUp();
