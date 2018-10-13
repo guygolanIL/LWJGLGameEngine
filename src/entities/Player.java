@@ -66,6 +66,9 @@ public class Player  extends Entity{
         upwardsSpeed += GRAVITY * DisplayManager.getFrameTimeSeconds();
         
         super.increasePosition(0, upwardsSpeed * DisplayManager.getFrameTimeSeconds(), 0);
+        
+        
+        
         float terrainHeight = terrain.getHeightOfTerrain(super.getPosition().x, super.getPosition().z);
         if(super.getPosition().y < terrainHeight){
         	upwardsSpeed = 0 ;

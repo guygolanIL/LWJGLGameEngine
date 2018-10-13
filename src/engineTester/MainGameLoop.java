@@ -22,6 +22,10 @@ import renderEngine.MasterRenderer;
 import renderEngine.OBJLoader;
 import terrain.Terrain;
 import textures.ModelTexture;
+import toolbox.MousePicker;
+import water.WaterRenderer;
+import water.WaterShader;
+import water.WaterTile;
  
 public class MainGameLoop {
  
@@ -88,26 +92,29 @@ public class MainGameLoop {
         
         GuiRenderer guiRenderer = new GuiRenderer(loader);
         
+        MousePicker picker = new MousePicker(camera, renderer.getProjectionMatrix(),terrain1);
+        
+        WaterShader waterShader = new WaterShader();
+        WaterRenderer waterRenderer = new WaterRenderer(loader, waterShader, renderer.getProjectionMatrix());
+        List<WaterTile> waters = new ArrayList<>();
+        waters.add(new WaterTile(-75, -75, 0));
+        
         while(!Display.isCloseRequested()){
         	camera.move();
         	person.move(terrain1);
         	
-        	
+        	picker.update();
+
+        	renderer.renderScene(entities , terrains , lights , camera);
         	
         	renderer.processEntity(person);
-        	
-        	for (Entity entity : entities) {
-				renderer.processEntity(entity);
-			}
-        	
-        	renderer.processTerrain(terrains);
-        	
-        	renderer.render(lights, camera);
+        	waterRenderer.render(waters, camera);
         	
         	guiRenderer.render(guis);
             DisplayManager.updateDisplay();
         }
  
+        waterShader.cleanUp();
         guiRenderer.cleanUp();
         renderer.cleanUp();
         loader.cleanUp();

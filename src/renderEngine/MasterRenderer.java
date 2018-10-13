@@ -54,6 +54,10 @@ public class MasterRenderer {
 		skyboxRenderer = new SkyBoxRenderer(loader, projectionMatrix);
 	}
 	
+	public Matrix4f getProjectionMatrix() {
+		return projectionMatrix;
+	}
+	
 	public void render(List<Light> lights , Camera camera){
 		prepare();
 		
@@ -74,7 +78,7 @@ public class MasterRenderer {
 		terrainShader.stop();
 		
 		//skybox Rendering
-		skyboxRenderer.render(camera);
+		skyboxRenderer.render(camera , RED , GREEN , BLUE);
 		
 		
 		terrains.clear();
@@ -95,8 +99,8 @@ public class MasterRenderer {
 	
 	public void processTerrain(List<Terrain> terrain) {
 		
-		for (Terrain terrain2 : terrain) {
-			terrains.add(terrain2);
+		for (Terrain t : terrain) {
+			terrains.add(t);
 		}
 		
 //		terrains.add(terrain);
@@ -136,6 +140,18 @@ public class MasterRenderer {
 	public void cleanUp(){
 		shader.cleanUp();
 		terrainShader.cleanUp();
+	}
+
+	public void renderScene(List<Entity> entities, List<Terrain> terrains, List<Light> lights, Camera camera) {
+		for (Entity entity : entities) {
+			processEntity(entity);
+		}
+    	
+    	processTerrain(terrains);
+    	
+    	render(lights, camera);
+    	
+		
 	}
 	
 }
