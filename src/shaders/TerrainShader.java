@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import entities.Camera;
 import entities.Light;
@@ -24,6 +25,7 @@ public class TerrainShader extends ShaderProgram{
     private int location_shineDamper;
     private int location_reflectivity;
     private int location_skyColour;
+	private int	location_plane;
     
     public TerrainShader() {
         super(VERTEX_FILE, FRAGMENT_FILE);
@@ -53,8 +55,16 @@ public class TerrainShader extends ShaderProgram{
 			location_lightPosition[i] = super.getUniformLocation("lightPosition[" + i + "]");
 			location_lightColour[i] = super.getUniformLocation("lightColour[" + i + "]");
 		}
+		
+		location_plane = super.getUniformLocation("plane");
     }
-     
+
+
+	public void loadClipPlane(Vector4f clipPlane) {
+		super.load4DVector(location_plane, clipPlane);
+	}     
+
+    
     public void loadSkyColour(float r , float g , float b){
     	super.loadVector(location_skyColour, new Vector3f(r, g, b));
     }
@@ -89,7 +99,7 @@ public class TerrainShader extends ShaderProgram{
 			
 			}
 		}
-	}     
+	}
      
 	
 }

@@ -1,12 +1,16 @@
 package engineTester;
  
+import java.io.ObjectInputStream.GetField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import entities.Camera;
 import entities.Entity;
@@ -103,8 +107,10 @@ public class MainGameLoop {
         
         
         WaterFrameBuffers fbos = new WaterFrameBuffers();
-        GuiTexture fbosTex = new GuiTexture(fbos.getReflectionTexture(), new Vector2f(-0.5f, 0.5f), new Vector2f(0.5f, 0.5f));
-        guis.add(fbosTex);
+        GuiTexture fbosTex1 = new GuiTexture(fbos.getReflectionTexture(), new Vector2f(-0.5f, 0.5f), new Vector2f(0.25f, 0.25f));
+        GuiTexture fbosTex2 = new GuiTexture(fbos.getRefractionTexture(), new Vector2f(0.5f, -0.5f), new Vector2f(0.25f, 0.25f));
+        guis.add(fbosTex1);
+        guis.add(fbosTex2);
         
         // *****************GAME LOOP **********************
         while(!Display.isCloseRequested()){
@@ -112,11 +118,27 @@ public class MainGameLoop {
         	person.move(terrain1);
         	picker.update();
 
-        	fbos.bindReflectionFrameBuffer();
-        	renderer.renderScene(entities , terrains , lights , camera);
-        	fbos.unbindCurrentFrameBuffer();
+        	GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
         	
-        	renderer.renderScene(entities , terrains , lights , camera);
+        	//reflection frame texture render
+        	fbos.bindReflectionFrameBuffer();
+        	float distance = (camera.getPosition().y - waters.get(0).getHeight()) * 2;
+        	camera.getPosition().y -= distance;
+        	camera.invertPitch();
+        	renderer.renderScene(entities , terrains , lights , camera , new Vector4f(0, 1, 0, -waters.get(0).getHeight()));
+        	camera.getPosition().y += distance;
+        	camera.invertPitch();
+        	
+        	//refraction frame texture render
+        	fbos.bindRefractionFrameBuffer();
+        	renderer.renderScene(entities, terrains, lights, camera, new Vector4f(0, -1, 0, waters.get(0).getHeight()));
+        	
+        	
+        	
+        	//render to screen
+        	GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
+        	fbos.unbindCurrentFrameBuffer();
+        	renderer.renderScene(entities , terrains , lights , camera, new Vector4f(0, -1, 0, 100000));
         	waterRenderer.render(waters, camera);
         	guiRenderer.render(guis);
         	
