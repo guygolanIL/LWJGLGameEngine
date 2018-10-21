@@ -84,7 +84,9 @@ public class MainGameLoop {
         
        
         List<Light> lights = new ArrayList<>();
-        lights.add(new Light(new Vector3f(20000,40000,20000), new Vector3f(1, 1, 1)));
+        
+        Light sun = new Light(new Vector3f(20000,40000,20000), new Vector3f(1, 1, 1));
+		lights.add(sun );
         Camera camera = new Camera(person);
          
         MasterRenderer renderer = new MasterRenderer(loader);
@@ -122,7 +124,7 @@ public class MainGameLoop {
         	float distance = (camera.getPosition().y - waters.get(0).getHeight()) * 2;
         	camera.getPosition().y -= distance;
         	camera.invertPitch();
-        	renderer.renderScene(entities , terrains , lights , camera , new Vector4f(0, 1, 0, -waters.get(0).getHeight()));
+        	renderer.renderScene(entities , terrains , lights , camera , new Vector4f(0, 1, 0, -waters.get(0).getHeight()+1f));
         	camera.getPosition().y += distance;
         	camera.invertPitch();
         	
@@ -136,7 +138,7 @@ public class MainGameLoop {
         	GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
         	fbos.unbindCurrentFrameBuffer();
         	renderer.renderScene(entities , terrains , lights , camera, new Vector4f(0, -1, 0, 100000));
-        	waterRenderer.render(waters, camera);
+        	waterRenderer.render(waters, camera , sun);
         	guiRenderer.render(guis);
         	
         	
