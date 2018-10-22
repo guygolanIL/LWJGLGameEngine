@@ -19,6 +19,7 @@ public class GUIText {
 	private int textMeshVao;
 	private int vertexCount;
 	private Vector3f colour = new Vector3f(0f, 0f, 0f);
+	
 
 	private Vector2f position;
 	private float lineMaxSize;
@@ -99,6 +100,7 @@ public class GUIText {
 		return colour;
 	}
 
+	
 	/**
 	 * @return The number of lines of text. This is determined when the text is
 	 *         loaded, based on the length of the text and the max line length

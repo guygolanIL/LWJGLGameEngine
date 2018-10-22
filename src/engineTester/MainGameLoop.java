@@ -48,9 +48,9 @@ public class MainGameLoop {
 
 		TextMaster.init(loader);
 		
-		FontType font = new FontType(loader.loadFontTexture("arial"), new File("res/arial.fnt"));
+		FontType font = new FontType(loader.loadFontTexture("Candara/candara"), new File("res/Candara/candara.fnt"));
 		GUIText text = new GUIText("Hello World", 3f, font, new Vector2f(0.5f, 0.5f), 0.5f, true);
-		text.setColour(1f, 0f, 0f);
+		text.setColour(0f, 0f, 0f);
 		// *********TERRAIN TEXTURE STUFF**********
 		
 		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadGameTexture("grassy2"));
