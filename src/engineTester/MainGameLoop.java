@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -25,6 +26,9 @@ import models.RawModel;
 import models.TexturedModel;
 import normalMappingObjConverter.NormalMappedObjLoader;
 import objConverter.OBJFileLoader;
+import particles.Particle;
+import particles.ParticleMaster;
+import particles.ParticleSystem;
 import renderEngine.DisplayManager;
 import renderEngine.Loader;
 import renderEngine.MasterRenderer;
@@ -45,8 +49,9 @@ public class MainGameLoop {
 
 		DisplayManager.createDisplay();
 		Loader loader = new Loader();
-
 		TextMaster.init(loader);
+		MasterRenderer renderer = new MasterRenderer(loader);
+		ParticleMaster.init(loader, renderer.getProjectionMatrix());
 		
 		FontType font = new FontType(loader.loadFontTexture("Candara/candara"), new File("res/Candara/candara.fnt"));
 		GUIText text = new GUIText("Hello World", 3f, font, new Vector2f(0.5f, 0.5f), 0.5f, true);
@@ -154,7 +159,6 @@ public class MainGameLoop {
 		Light sun = new Light(new Vector3f(10000, 10000, -10000), new Vector3f(1.3f, 1.3f, 1.3f));
 		lights.add(sun);
 
-		MasterRenderer renderer = new MasterRenderer(loader);
 
 		RawModel bunnyModel = OBJLoader.loadObjModel("person", loader);
 		TexturedModel stanfordBunny = new TexturedModel(bunnyModel, new ModelTexture(
@@ -176,12 +180,21 @@ public class MainGameLoop {
 		WaterTile water = new WaterTile(75, -75, 0);
 		waters.add(water);
 		
+		//*************PARTICLE SYSTEM******************
+		ParticleSystem pSystem = new ParticleSystem(50f, 6f, 0.1f, 1.5f, 1.0f);
+		pSystem.randomizeRotation();
+		
 		//****************Game Loop Below*********************
 
 		while (!Display.isCloseRequested()) {
 			player.move(terrain);
 			camera.move();
 			picker.update();
+			
+			pSystem.generateParticles(new Vector3f(player.getPosition()));
+			
+			ParticleMaster.update();
+			
 			entity.increaseRotation(0, 1, 0);
 			entity2.increaseRotation(0, 1, 0);
 			entity3.increaseRotation(0, 1, 0);
@@ -205,14 +218,19 @@ public class MainGameLoop {
 			buffers.unbindCurrentFrameBuffer();	
 			renderer.renderScene(entities, normalMapEntities, terrains, lights, camera, new Vector4f(0, -1, 0, 100000));	
 			waterRenderer.render(waters, camera, sun);
+			
+			ParticleMaster.renderParticles(camera);
+			
+			//2d rendering
 			guiRenderer.render(guiTextures);
 			TextMaster.render();
+			
 			
 			DisplayManager.updateDisplay();
 		}
 
 		//*********Clean Up Below**************
-		
+		ParticleMaster.cleanUp();
 		TextMaster.cleanUp();
 		buffers.cleanUp();
 		waterShader.cleanUp();
