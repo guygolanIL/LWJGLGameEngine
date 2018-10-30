@@ -29,6 +29,7 @@ import objConverter.OBJFileLoader;
 import particles.Particle;
 import particles.ParticleMaster;
 import particles.ParticleSystem;
+import particles.ParticleTexture;
 import renderEngine.DisplayManager;
 import renderEngine.Loader;
 import renderEngine.MasterRenderer;
@@ -181,7 +182,10 @@ public class MainGameLoop {
 		waters.add(water);
 		
 		//*************PARTICLE SYSTEM******************
-		ParticleSystem pSystem = new ParticleSystem(50f, 6f, 0.1f, 1.5f, 1.0f);
+		ParticleTexture pTexture = new ParticleTexture(loader.loadGameTexture("particleAtlas"), 4 ,false);
+		ParticleSystem pSystem = new ParticleSystem(pTexture,300f, 16f, 0.05f, 1.5f, 1.0f);
+		pSystem.setDirection(new Vector3f(0.0f, 1.0f, 0.0f), 0.1f);
+		
 		pSystem.randomizeRotation();
 		
 		//****************Game Loop Below*********************
@@ -191,16 +195,16 @@ public class MainGameLoop {
 			camera.move();
 			picker.update();
 			
-			pSystem.generateParticles(new Vector3f(player.getPosition()));
+			pSystem.generateParticles(new Vector3f(player.getPosition().getX()	, player.getPosition().getY() + 10f , player.getPosition().getZ()));
 			
-			ParticleMaster.update();
+			ParticleMaster.update(camera);
 			
 			entity.increaseRotation(0, 1, 0);
 			entity2.increaseRotation(0, 1, 0);
 			entity3.increaseRotation(0, 1, 0);
 			GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
 			
-			//render reflection teture
+			//render reflection texture
 			buffers.bindReflectionFrameBuffer();
 			float distance = 2 * (camera.getPosition().y - water.getHeight());
 			camera.getPosition().y -= distance;
