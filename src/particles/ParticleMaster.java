@@ -25,7 +25,8 @@ public class ParticleMaster {
 		Iterator<Entry<ParticleTexture, List<Particle>>> mapItr = particles.entrySet().iterator();
 		
 		while(mapItr.hasNext()){
-			List<Particle> list = mapItr.next().getValue();
+			Entry<ParticleTexture, List<Particle>> entry = mapItr.next(); 
+			List<Particle> list = entry.getValue();
 			Iterator<Particle> iterator = list.iterator();
 			while(iterator.hasNext()){
 				Particle p = iterator.next();
@@ -37,7 +38,7 @@ public class ParticleMaster {
 					}
 				}
 			}
-			InsertionSort.sortHighToLow(list);
+			InsertionSort.sortHighToLow(list);				
 		}
 		
 		

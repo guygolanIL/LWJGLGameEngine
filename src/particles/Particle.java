@@ -25,6 +25,8 @@ public class Particle {
 	private float elapsedTime = 0;
 	private float distanceFromCam;
 
+	private Vector3f reusableChange = new Vector3f();
+	
 	public Particle(ParticleTexture texture , Vector3f position, Vector3f velocity, float gravityEffect, float lifeLength, float rotation, float scale) {
 		super();
 		this.texture = texture;
@@ -37,7 +39,6 @@ public class Particle {
 		
 		ParticleMaster.addParticle(this);
 	}
-
 	
 	public float getDistanceFromCam() {
 		return distanceFromCam;
@@ -83,9 +84,9 @@ public class Particle {
 
 	protected boolean update(Camera camera){
 		velocity.y += Player.GRAVITY * gravityEffect * DisplayManager.getFrameTimeSeconds();
-		Vector3f change = new Vector3f(velocity);
-		change.scale(DisplayManager.getFrameTimeSeconds());
-		Vector3f.add(change, position, position);
+		reusableChange.set(velocity);
+		reusableChange.scale(DisplayManager.getFrameTimeSeconds());
+		Vector3f.add(reusableChange, position, position);
 		distanceFromCam = Vector3f.sub(camera.getPosition(), position, null).lengthSquared();
 		updateTextureCoordInfo();
 		elapsedTime += DisplayManager.getFrameTimeSeconds();
